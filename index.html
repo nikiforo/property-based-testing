@@ -8,7 +8,7 @@
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+		<link rel="stylesheet" href="dist/theme/47deg.css">
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
@@ -16,7 +16,385 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
+				
+				<section>
+					<h2>Property based testing</h2>
+					<p>Artem Nikiforov @ Delimobil</p>
+				</section>
+
+				<section>
+					<h2>План доклада</h2>
+					<ul>
+						<li class="fragment">Общие слова о тестировании</li>
+						<li class="fragment">Синтетические примеры</li>
+						<li class="fragment">Примеры из практики</li>
+						<p class="fragment">
+							Требуется понимать синтаксис языка программирования(scala)
+						</p>
+					</ul>
+				</section>
+
+				<section>
+					<img src="img/alexelcu.jpg" width="300" class="plain"/>
+				</section>
+
+				<section>
+				  <h2>Тестирование</h2>
+				  <ul>
+				    <li class="fragment">Наиболее типичный случай</li>
+				    <li class="fragment">Классы эквивалентности и граничные условия</li>
+				  </ul>
+					<p class="fragment">
+						Тестирование на основе свойств (scalacheck)
+					</p>
+
+				</section>
+
+				<section>
+				  <h2>Пример</h2>
+				  <pre class="fragment"><code class="nohighlight">scala> import org.scalacheck.Prop.forAll
+import org.scalacheck.Prop.forAll
+</pre></code><pre class="fragment"><code class="nohighlight">scala> val prop = forAll { s: String =>
+     |   s.length >= 0
+     | }
+prop: org.scalacheck.Prop = Prop
+</pre></code><pre class="fragment"><code class="nohighlight">scala> prop.check
++ OK, passed 100 tests.</pre></code>
+                                  <br/>
+                                  <p class="fragment">Also works out-of-the-box with SBT</p>
+				</section>
+
+				<section>
+					<h2>Scalacheck</h2>
+
+					<ul>
+						<li>Связывает типы со значениями</li>
+						<li>Ведет диалог между реализацией и тестами (*)</li>
+						<li>НЕ библиотека для генерации случайных данных</li>
+					</ul>
+
+					<p> Необходимо думать о реализации и тестах немного в другом ключе (**) </p>
+
+				</section>
+
+				<section>
+					<h2>Диалог (*)</h2>
+
+					<pre class="fragment"><code class="nohighlight">forAll { x: Int =>
+  Math.abs(x) >= 0
+}</pre></code><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 30 passed tests.
+[info] > ARG_0: -2147483648</pre></code>
+					
+										<pre class="fragment"><code class="nohighlight">scala> Integer.MIN_VALUE
+res0: Int = -2147483648
+					
+scala> Math.abs(Integer.MIN_VALUE)
+res1: Int = -2147483648</pre></code>
+				</section>
+
+				<section>
+				  <h2>Диалог (*)</h2>
+		
+				  <pre><code class="nohighlight">forAll { x: Int =>
+  Math.abs(x) >= 0
+}</pre></code><pre><code class="nohighlight">[info] ! Falsified after 30 passed tests.
+[info] > ARG_0: -2147483648</pre></code>
+				  <div><pre class="fragment"><code class="nohighlight">import org.scalacheck.Prop.BooleanOperators
+					
+forAll { x: Int =>
+  x > Integer.MIN_VALUE ==>
+  Math.abs(x) >= 0
+}</div></pre></code><pre class="fragment"><code class="nohighlight">[info] + Math.abs: OK, passed 100 tests.
+</pre></code>
+				</section>
+
+				
+				<section>
+				  <aside class="notes">
+				    <ul>
+				      <li>Not actually the real rules</li>
+				    </ul>
+				  </aside>
+
+				  <h2>Yahtzee. Правила</h2>
+				  <div class="fragment" style="text-align: left">
+				    Yahtzee
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <br/>
+				    Straight
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <img src="img/Dice-3.svg" width="30" class="plain"/>
+				    <img src="img/Dice-4.svg" width="30" class="plain"/>
+				    <img src="img/Dice-5.svg" width="30" class="plain"/>
+				    <br/>
+				    Full house
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-5.svg" width="30" class="plain"/>
+				    <img src="img/Dice-5.svg" width="30" class="plain"/>
+				    <br/>
+				    Four of a kind
+				    <img src="img/Dice-4.svg" width="30" class="plain"/>
+				    <img src="img/Dice-4.svg" width="30" class="plain"/>
+				    <img src="img/Dice-4.svg" width="30" class="plain"/>
+				    <img src="img/Dice-4.svg" width="30" class="plain"/>
+				    <img src="img/Dice-6.svg" width="30" class="plain"/>
+				    <br/>
+				    Three of a kind
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-1.svg" width="30" class="plain"/>
+				    <img src="img/Dice-5.svg" width="30" class="plain"/>
+				    <img src="img/Dice-2.svg" width="30" class="plain"/>
+				    <br/>
+				  </div>
+					<pre class="fragment"><code class="nohighlight">def winner(h1: Hand, h2: Hand): Hand = ???</pre></code>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Правила</h2>
+					<pre><code class="language-scala">sealed trait Die
+						
+case object One extends Die
+case object Two extends Die
+case object Three extends Die
+case object Four extends Die
+case object Five extends Die
+case object Six extends Die				
+</code></pre>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Правила</h2>
+					<pre><code class="language-scala">sealed trait Score { def value: Int }
+
+case object Yahtzee extends Score { val value = 5 }
+case object Straight extends Score { val value = 4 }
+case object FullHouse extends Score { val value = 3 }
+case object FourOfAKind extends Score { val value = 2 }
+case object ThreeOfAKind extends Score { val value = 1 }
+case object NoScore extends Score { val value = 0 }
+</code></pre>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Правила</h2>
+					<pre><code class="language-scala">case class Hand(p1: Die, p2: Die, p3: Die, p4: Die, p5: Die) {
+  val score = {
+    val diceSet = Set(p1, p2, p3, p4, p5).toSet
+
+    val valueSet =
+      diceSet.groupBy(identity)
+        .map { case (k, v) => (k, v.length) }
+        .valueSet
+
+    if(valueSet == Set(5)) Yahtzee
+    else if(diceSet == Set(One, Two, Three, Four, Five)) Straight
+    else if(diceSet == Set(Two, Three, Four, Five, Six)) Straight
+    else if(valueSet.contains(4)) FourOfAKind
+    else if(valueSet == Set(3, 2)) FullHouse
+    else if(valueSet.contains(3)) ThreeOfAKind
+    else NoScore
+  }
+}
+</code></pre>
+				</section>
+
+
+				<section>
+					<h2>Yahtzee. Правила</h2>
+					<pre><code class="language-scala">object Yahtzee {
+
+  sealed trait Outcome
+
+  case object Left extends Outcome
+  case object Right extends Outcome
+  case object Draw extends Outcome
+
+  def winner(h1: Hand, h2: Hand): Outcome =
+    if(h1.score == h2.score) Draw
+    else if(h1.score > h2.score) Left
+    else Right
+}</code></pre>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Scalatest</h2>
+					<pre><code class="language-scala">test("Yahtzee vs Straight") {
+  val h1 = Hand(One, One, One, One, One)
+  val h2 = Hand(One, Two, Three, Four, Five)
+
+  assert(winner(h1, h2) == Left)
+}
+
+// (Two, Two, Two, Two, Two), (Three, Three, ...), ...
+// (Two, One, Three, Four, Five), (Three, Two, One, Four, ...), ...</code></pre>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Scalacheck</h2>
+						<p>Scalacheck</p>
+						<ul>
+							<li class="fragment">Сгенерировать две руки</li>
+							<li class="fragment">Понять, какая выигрышная</li>
+							<li class="fragment">Проверить, что она выигрывает</li>
+						</ul>
+				</section>
+
+
+				<section>
+					<h2>Yahtzee. Scalacheck</h2>
+					<pre><code class="language-scala">test("scalacheck naive implementation") {
+  def score(h: Hand) = ???
+
+  forAll { (h1: Hand, h2: Hand) =>
+    val score1 = score(h1)
+    val score2 = score(h2)
+
+    val winning =
+      if(h1.score == h2.score) Draw
+      else if(h1.score > h2.score) Left
+      else Right
+
+    assert(winning == Yahtzee.winner(h1, h2))
+  }
+}</code></pre>
+				</section>
+
+				<section>
+					<h2>Yahtzee. Scalacheck</h2>
+					<pre><code class="language-scala">test("scalacheck naive implementation") {
+  forAll { (y: Die, fhA: Die, fhB: Die) => fhA != fhB ==>
+    val yahtzee = Hand(y, y, y, y, y)
+    val fullHouse = Hand(fhA, fhA, fhA, fhB, fhB)
+
+    assert(Yahtzee.winner(yahtzee, fullHouse) == Left)
+    assert(yahtzee.score > fullHouse.score)
+  }
+}</code></pre>
+
+				</section>
+
+				<section>
+				  <h2>Gen</h2>
+				  <pre class="fragment"><code class="language-scala">import org.scalacheck.Gen._</pre></code>
+				  <pre class="fragment"><code class="language-scala">def alphaStr: Gen[String]</code></pre>
+				  <pre class="fragment"><code class="language-scala">def posNum[T](implicit n: Numeric[T]): Gen[T]</code></pre>
+				  <pre class="fragment"><code class="language-scala">def oneOf[T](xs: Seq[T]): Gen[T]</code></pre>
+				  <pre class="fragment"><code class="language-scala">def listOf[T](g: Gen[T]): Gen[List[T]]</code></pre>
+				  <pre class="fragment"><code class="language-scala">def listOfN[T](n: Int, g: Gen[T]): Gen[List[T]]</code></pre>
+				</section>
+
+
+				<section>
+				  <h2>Gen</h2>
+			
+				  <p>Gen forms a monad</p>
+				  <pre class="fragment"><code class="language-scala">def cappedString: Gen[String] = for {
+  c <- alphaUpperChar
+  s <- listOf(alphaLowerChar)
+} yield (c :: s).mkString
+</pre></code><pre class="fragment"><code class="language-scala">scala> cappedString.sample
+res2: Option[String] = Some(Rmvbrcgtzvdlnssznckgedmyeeoxwiqjvtiby)</pre></code>
+				</section>
+
+				<section>
+				  <h2>Yahtzee. Scalacheck</h2>
+				  <p>
+				    Create a generator for each winning hand.
+				  </p>
+				  <pre class="fragment"><code class="language-scala">val allDice: List[Die] = List(One, Two, Three, Four, Five, Six)
+
+val genYahtzee: Gen[Hand] = oneOf(allDice)
+                              .map(d => Hand(d, d, d, d, d))</pre></code>
+				  <pre class="fragment"><code class="language-scala">val genThreeOfAKind: Gen[Hand] = for {
+  d1 <- oneOf(allDice)
+  d2 <- oneOf(allDice diff List(d1))
+  d3 <- oneOf(allDice diff List(d1, d2))
+} yield Hand(d1, d1, d1, d2, d3)</pre></code>
+				</section>
+
+				<section>
+				  <h2>Yahtzee. Scalacheck</h2>
+				  <p>
+				    Order the generators to reflect superior hands.
+				  </p>
+				  <pre class="fragment"><code class="language-scala">val orderedGenerators: List[Gen[Hand]] = List(
+  genYahtzee,
+  genStraight,
+  genFullHouse,
+  genFourOfAKind,
+  genThreeOfAKind
+)</pre></code>
+				</section>
+				
+
+				<section>
+				  <h2>Yahtzee. Scalacheck</h2>
+				  <p>
+				    Use ScalaCheck to partition the generators.
+				  </p>
+				  <pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
+
+  val (winningGens, losingGens) = orderedGens.splitAt(idx)
+
+  // ...</pre></code>
+				</section>
+
+
+				<section>
+				  <h2>Yahtzee. Scalacheck</h2>
+				<p>
+					Compare a hand from one of the better generators with a worse one. The better one should win.
+				</p>
+				<pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
+
+  val (winningGens, losingGens) = orderedGens.splitAt(idx)
+
+  forAll(oneOf(winningGens), oneOf(losingGens)) { (winning, losing) =>
+    assert(Yahtzee.winner(winning, losing) == Left)
+  }
+}</pre></code>
+				</section>
+
+				<section>
+					<h2>Scalacheck</h2>
+					<p>Не рассмотрели множество тем, например:</p>
+					<ul>
+						<li class="fragment">Какие данные использовались для тестирования</li>
+					</ul>
+					<p class="fragment">
+					<pre><code class="nohighlight">[info] > Collected test data:
+[info] 20% Yahtzee vs FourOfAKind
+[info] 19% Yahtzee vs ThreeOfAKind
+[info] 16% Yahtzee vs FullHouse
+[info] 13% Yahtzee vs Straight
+[info] 10% FullHouse vs ThreeOfAKind
+[info] 9% Straight vs ThreeOfAKind
+[info] 6% FourOfAKind vs ThreeOfAKind
+[info] 6% Straight vs FourOfAKind
+[info] 1% Straight vs FullHouse</code></pre></p>
+				</section>
+
+				<section>
+					<h2>Scalacheck</h2>
+					<p>Не рассмотрели множество тем, например:</p>
+					<ul>
+						<li class="fragment">Какие данные использовались для тестирования</li>
+						<li class="fragment">Scalacheck API</li>
+					</ul>
+					<p class="fragment">
+					<pre><code class="nohighlight">Gen[Double], posNum, Gen[String], alphaUpperChar, Gen[DateTime], ...
+Arbitrary, 
+					</code></pre></p>
+				</section>
+
 				<section>Slide 2</section>
 			</div>
 		</div>
