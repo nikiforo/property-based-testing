@@ -12,11 +12,21 @@
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+		<style>
+			body {
+				background-image: url(img/deli-logo.png);
+				background-size: 8%;
+				background-repeat: no-repeat;
+				background-position: 90% 16%;
+			}
+		</style>
 	</head>
 	<body>
-		<div class="reveal">
+
+	<div class="reveal">
+
 			<div class="slides">
-				
+
 				<section>
 					<h2>Property based testing</h2>
 					<p>Artem Nikiforov @ Delimobil</p>
@@ -448,7 +458,7 @@ res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))</code></pre>
 																		<li>Какие данные использовались для тестирования</li>
 																		<li>Scalacheck API</li>
 																		<li>Автовыведение Gen для произвольных классов</li>
-																		<li class="fragment">Классы задач, созданные для scalacheck</li>
+																		<li class="fragment">Классы задач ♥ scalacheck</li>
 																	</ul>
 																	<pre class="fragment"><code class="nohighlight">- функционал, у которого определен обратный(Encoders/Decoders)
 - Reference implementation</code></pre>
@@ -470,7 +480,6 @@ res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))</code></pre>
 			// - https://revealjs.com/config/
 			Reveal.initialize({
 				hash: true,
-
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
 			});
