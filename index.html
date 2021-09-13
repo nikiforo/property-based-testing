@@ -294,7 +294,7 @@ case object NoScore extends Score { val value = 0 }
 				<section>
 				  <h2>Gen</h2>
 			
-				  <p>Gen forms a monad</p>
+				  <p>Gen можно комбинировать</p>
 				  <pre class="fragment"><code class="language-scala">def cappedString: Gen[String] = for {
   c <- alphaUpperChar
   s <- listOf(alphaLowerChar)
@@ -305,9 +305,7 @@ res2: Option[String] = Some(Rmvbrcgtzvdlnssznckgedmyeeoxwiqjvtiby)</pre></code>
 
 				<section>
 				  <h2>Yahtzee. Scalacheck</h2>
-				  <p>
-				    Create a generator for each winning hand.
-				  </p>
+				  <p>Опишем генераторы для каждого случая</p>
 				  <pre class="fragment"><code class="language-scala">val allDice: List[Die] = List(One, Two, Three, Four, Five, Six)
 
 val genYahtzee: Gen[Hand] = oneOf(allDice)
@@ -321,9 +319,7 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 
 				<section>
 				  <h2>Yahtzee. Scalacheck</h2>
-				  <p>
-				    Order the generators to reflect superior hands.
-				  </p>
+				  <p>Упорядочим генераторы по убыванию</p>
 				  <pre class="fragment"><code class="language-scala">val orderedGenerators: List[Gen[Hand]] = List(
   genYahtzee,
   genStraight,
@@ -337,7 +333,7 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 				<section>
 				  <h2>Yahtzee. Scalacheck</h2>
 				  <p>
-				    Use ScalaCheck to partition the generators.
+				    Разделим генераторы на две группы
 				  </p>
 				  <pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
 
@@ -349,9 +345,6 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 
 				<section>
 				  <h2>Yahtzee. Scalacheck</h2>
-				<p>
-					Compare a hand from one of the better generators with a worse one. The better one should win.
-				</p>
 				<pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
 
   val (winningGens, losingGens) = orderedGens.splitAt(idx)
@@ -394,8 +387,6 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 						
 										<section>
 											<h2>Именование Properties</h2>
-										
-											<h4>Better than <code>println</code></h4>
 						<pre class="fragment"><code class="nohighlight">forAll { (i: Int, j: Int) =>
   val (max, min) = (i max j, i min j)
   val (maxSq, minSq) = (max * max, min * min)
@@ -408,9 +399,8 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 						
 										<section>
 											<h2>Именование Properties</h2>
-										 
-											<h4><code>println</code></h4>
-						<pre><code class="nohighlight">forAllNoShrink { (i: Int, j: Int) =>
+										
+						<pre><code class="nohighlight">forAll { (i: Int, j: Int) =>
   val (max, min) = (i max j, i min j)
   val (maxSq, minSq) = (max * max, min * min)
 
