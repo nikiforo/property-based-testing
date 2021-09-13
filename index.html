@@ -25,41 +25,37 @@
 				<section>
 					<h2>О докладе</h2>
 					<ul>
-						<li class="fragment">noelmarkham @ 47deg</li>
-						<li class="fragment">Общие слова о тестировании</li>
-						<li class="fragment">Синтетические примеры</li>
-						<p class="fragment">
-							Требуется понимать синтаксис языка программирования(scala)
-						</p>
+						<li class="fragment">"Practical ScalaCheck" by noelmarkham @ 47deg</li>
+						<li class="fragment">пара слов о тестировании в общем</li>
+						<li class="fragment">scalacheck - scala</li>
+						<li class="fragment">примеры тестирования свойств</li>
 					</ul>
 				</section>
 
 				<section>
-					<img src="img/alexelcu.jpg" width="300" class="plain"/>
+					<img src="img/alexelcu.jpg" width="400" class="plain"/>
 				</section>
 
 				<section>
 				  <h2>Тестирование</h2>
 				  <ul>
-				    <li class="fragment">Наиболее типичный случай</li>
+				    <li class="fragment">Входные параметры, интерпретируем, сравниваем</li>
 				    <li class="fragment">Классы эквивалентности и граничные условия</li>
+				    <li class="fragment">Для Int: MinValue, -1, 0, 1, MaxValue</li>
+				  	<li class="fragment">Тестирование на основе свойств</li>
 				  </ul>
-					<p class="fragment">
-						Тестирование на основе свойств (scalacheck)
-					</p>
 
 				</section>
 
 				<section>
 				  <h2>Пример</h2>
-				  <pre class="fragment"><code class="nohighlight">scala> import org.scalacheck.Prop.forAll
-import org.scalacheck.Prop.forAll
-</pre></code><pre class="fragment"><code class="nohighlight">scala> val prop = forAll { s: String =>
-     |   s.length >= 0
-     | }
-prop: org.scalacheck.Prop = Prop
-</pre></code><pre class="fragment"><code class="nohighlight">scala> prop.check
-+ OK, passed 100 tests.</pre></code>
+<pre class="fragment"><code class="nohighlight">import org.scalacheck.Prop.forAll
+import org.scalacheck.Prop
+
+val prop: Prop = forAll { s: String =>
+  s.length >= 0
+}</code></pre><pre class="fragment"><code class="nohighlight">prop.check
++ OK, passed 100 tests.</code></pre>
                                   <br/>
 				</section>
 
@@ -68,11 +64,9 @@ prop: org.scalacheck.Prop = Prop
 
 					<ul>
 						<li>Связывает типы со значениями</li>
-						<li>Ведет диалог между реализацией и тестами (*)</li>
 						<li>НЕ библиотека для генерации случайных данных</li>
+						<li>Ведет диалог между реализацией и тестами (*)</li>
 					</ul>
-
-					<p> Необходимо думать о реализации и тестах немного в другом ключе (**) </p>
 
 				</section>
 
@@ -165,7 +159,9 @@ case object Two extends Die
 case object Three extends Die
 case object Four extends Die
 case object Five extends Die
-case object Six extends Die				
+case object Six extends Die
+
+case class Hand(p1: Die, p2: Die, p3: Die, p4: Die, p5: Die)
 </code></pre>
 				</section>
 
@@ -184,32 +180,28 @@ case object NoScore extends Score { val value = 0 }
 
 				<section>
 					<h2>Yahtzee. Правила</h2>
-					<pre><code class="language-scala">case class Hand(p1: Die, p2: Die, p3: Die, p4: Die, p5: Die) {
-  val score = {
-    val diceSet = Set(p1, p2, p3, p4, p5).toSet
+					<pre><code class="language-scala">def score(h: Hand) = {
+  val diceSet = Set(h.p1, h.p2, h.p3, h.p4, h.p5).toSet
 
-    val valueSet =
-      diceSet.groupBy(identity)
-        .map { case (k, v) => (k, v.length) }
-        .valueSet
+  val valueSet =
+    diceSet.groupBy(identity)
+      .map { case (k, v) => (k, v.length) }
+      .valueSet
 
-    if(valueSet == Set(5)) Yahtzee
-    else if(diceSet == Set(One, Two, Three, Four, Five)) Straight
-    else if(diceSet == Set(Two, Three, Four, Five, Six)) Straight
-    else if(valueSet.contains(4)) FourOfAKind
-    else if(valueSet == Set(3, 2)) FullHouse
-    else if(valueSet.contains(3)) ThreeOfAKind
-    else NoScore
-  }
-}
-</code></pre>
+  if(valueSet == Set(5)) Yahtzee
+  else if(diceSet == Set(One, Two, Three, Four, Five)) Straight
+  else if(diceSet == Set(Two, Three, Four, Five, Six)) Straight
+  else if(valueSet.contains(4)) FourOfAKind
+  else if(valueSet == Set(3, 2)) FullHouse
+  else if(valueSet.contains(3)) ThreeOfAKind
+  else NoScore
+}</code></pre>
 				</section>
 
 
 				<section>
 					<h2>Yahtzee. Правила</h2>
-					<pre><code class="language-scala">object Yahtzee {
-
+					<pre><code class="language-scala">
   sealed trait Outcome
 
   case object Left extends Outcome
@@ -217,10 +209,9 @@ case object NoScore extends Score { val value = 0 }
   case object Draw extends Outcome
 
   def winner(h1: Hand, h2: Hand): Outcome =
-    if(h1.score == h2.score) Draw
-    else if(h1.score > h2.score) Left
-    else Right
-}</code></pre>
+    if(score(h1) == score(h2)) Draw
+    else if(score(h1) > score(h2)) Left
+    else Right</code></pre>
 				</section>
 
 				<section>
@@ -230,10 +221,13 @@ case object NoScore extends Score { val value = 0 }
   val h2 = Hand(One, Two, Three, Four, Five)
 
   assert(winner(h1, h2) == Left)
-}
+}</code></pre>
+<pre class="fragment"><code class="language-scala">test("Yahtzee vs Straight2") {
+  val h1 = Hand(Two, Two, Two, Two, Two)
+  val h2 = Hand(Two, One, Three, Four, Five)
 
-// (Two, Two, Two, Two, Two), (Three, Three, ...), ...
-// (Two, One, Three, Four, Five), (Three, Two, One, Four, ...), ...</code></pre>
+  assert(winner(h1, h2) == Left)
+}</code></pre>
 				</section>
 
 				<section>
@@ -268,7 +262,7 @@ case object NoScore extends Score { val value = 0 }
 
 				<section>
 					<h2>Yahtzee. Scalacheck</h2>
-					<pre><code class="language-scala">test("scalacheck naive implementation") {
+					<pre><code class="language-scala">test("scalacheck prop implementation") {
   forAll { (y: Die, fhA: Die, fhB: Die) => fhA != fhB ==>
     val yahtzee = Hand(y, y, y, y, y)
     val fullHouse = Hand(fhA, fhA, fhA, fhB, fhB)
@@ -299,8 +293,8 @@ case object NoScore extends Score { val value = 0 }
   c <- alphaUpperChar
   s <- listOf(alphaLowerChar)
 } yield (c :: s).mkString
-</pre></code><pre class="fragment"><code class="language-scala">scala> cappedString.sample
-res2: Option[String] = Some(Rmvbrcgtzvdlnssznckgedmyeeoxwiqjvtiby)</pre></code>
+</code></pre><pre class="fragment"><code class="language-scala">scala> cappedString.sample
+res2: Option[String] = Some(Rmvbrcgtzvdlnssznckgedmyeeoxwiqjvtiby)</code></pre>
 				</section>
 
 				<section>
@@ -308,13 +302,13 @@ res2: Option[String] = Some(Rmvbrcgtzvdlnssznckgedmyeeoxwiqjvtiby)</pre></code>
 				  <p>Опишем генераторы для каждого случая</p>
 				  <pre class="fragment"><code class="language-scala">val allDice: List[Die] = List(One, Two, Three, Four, Five, Six)
 
-val genYahtzee: Gen[Hand] = oneOf(allDice)
-                              .map(d => Hand(d, d, d, d, d))</pre></code>
+val genYahtzee: Gen[Hand] =
+  oneOf(allDice).map(d => Hand(d, d, d, d, d))</code></pre>
 				  <pre class="fragment"><code class="language-scala">val genThreeOfAKind: Gen[Hand] = for {
   d1 <- oneOf(allDice)
   d2 <- oneOf(allDice diff List(d1))
   d3 <- oneOf(allDice diff List(d1, d2))
-} yield Hand(d1, d1, d1, d2, d3)</pre></code>
+} yield Hand(d1, d1, d1, d2, d3)</code></pre>
 				</section>
 
 				<section>
@@ -326,35 +320,20 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
   genFullHouse,
   genFourOfAKind,
   genThreeOfAKind
-)</pre></code>
+)</code></pre>
 				</section>
 				
 
 				<section>
 				  <h2>Yahtzee. Scalacheck</h2>
-				  <p>
-				    Разделим генераторы на две группы
-				  </p>
-				  <pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
-
-  val (winningGens, losingGens) = orderedGens.splitAt(idx)
-
-  // ...</pre></code>
-				</section>
-
-
-				<section>
-				  <h2>Yahtzee. Scalacheck</h2>
-				<pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](1, orderedGens.length - 1)) { idx =>
-
-  val (winningGens, losingGens) = orderedGens.splitAt(idx)
-
-  forAll(oneOf(winningGens), oneOf(losingGens)) { (winning, losing) =>
-    assert(Yahtzee.winner(winning, losing) == Left)
+				  <pre class="fragment"><code class="language-scala">forAll(chooseNum[Int](0, orderedGens.length - 2)) { i =>
+  forAll(chooseNum[Int](i, orderedGens.length - 1)) { j =>
+    forAll(orderedGens(i), orderedGens(j)) { (win, lose) =>
+      assert(winner(win, lose) == Left)
+    }
   }
-}</pre></code>
+}</code></pre>
 				</section>
-
 										<section>
 											<h2>Особенности scalacheck</h2>
 										 
@@ -374,7 +353,7 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 										<section>
 											<h2>Именование Generators</h2>	  
 						<pre class="fragment"><code class="nohighlight">forAll(arbitrary[Int], arbitrary[Map[Int, String]]) { (i, m) =>
-	m.get(i).isDefined
+  m.get(i).isDefined
 }</code></pre><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 0 passed tests.
 [info] > ARG_0: 1
 [info] > ARG_1: Map()</code></pre><pre class="fragment"><code class="nohighlight">forAll("Index"           |: arbitrary[Int],
@@ -469,9 +448,9 @@ res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))</code></pre>
 																		<li>Какие данные использовались для тестирования</li>
 																		<li>Scalacheck API</li>
 																		<li>Автовыведение Gen для произвольных классов</li>
-																		<li class="fragment">scalacheck tests are free</li>
+																		<li class="fragment">Классы задач, созданные для scalacheck</li>
 																	</ul>
-																	<pre class="fragment"><code class="nohighlight">- Round-trip properties(Encoders/Decoders)
+																	<pre class="fragment"><code class="nohighlight">- функционал, у которого определен обратный(Encoders/Decoders)
 - Reference implementation</code></pre>
 																						</section>
 
