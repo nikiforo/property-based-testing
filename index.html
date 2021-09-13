@@ -362,54 +362,6 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 }</pre></code>
 				</section>
 
-				<section>
-					<h2>Scalacheck</h2>
-					<p>Не рассмотрели множество тем, например:</p>
-					<ul>
-						<li class="fragment">Какие данные использовались для тестирования</li>
-					</ul>
-					<pre class="fragment"><code class="nohighlight">[info] > Collected test data:
-[info] 20% Yahtzee vs FourOfAKind
-[info] 19% Yahtzee vs ThreeOfAKind
-[info] 16% Yahtzee vs FullHouse
-[info] 13% Yahtzee vs Straight
-[info] 10% FullHouse vs ThreeOfAKind
-[info] 9% Straight vs ThreeOfAKind
-[info] 6% FourOfAKind vs ThreeOfAKind
-[info] 6% Straight vs FourOfAKind
-[info] 1% Straight vs FullHouse</code></pre>
-				</section>
-
-				<section>
-					<h2>Scalacheck</h2>
-					<p>Не рассмотрели множество тем, например:</p>
-					<ul>
-						<li>Какие данные использовались для тестирования</li>
-						<li class="fragment">Scalacheck API</li>
-					</ul>
-					<pre class="fragment"><code class="nohighlight">Gen[Double], posNum, Gen[String], alphaUpperChar, Gen[DateTime], ...
-Arbitrary,</code></pre>
-				</section>
-
-				<section>
-					<h2>Scalacheck</h2>
-					<p>Не рассмотрели множество тем, например:</p>
-					<ul>
-						<li>Какие данные использовались для тестирования</li>
-						<li>Scalacheck API</li>
-						<li class="fragment">Автовыведение Gen для произвольных классов</li>
-					</ul>
-					<pre class="fragment"><code class="nohighlight">scala> case class Coordinates(x: Int, y: Int, description: String)
-defined class Coordinates
-
-scala> import org.scalacheck.Shapeless._
-import org.scalacheck.Shapeless._
-
-scala> arbitrary[Coordinates].sample
-res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))
-						</code></pre>
-										</section>
-
 										<section>
 											<h2>Особенности scalacheck</h2>
 										 
@@ -472,14 +424,66 @@ res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))
 [info] > ARG_1: -2147483648</code></pre>
 										</section>
 
+
 										<section>
-											<h2>Free</h2>
+											<h2>Scalacheck</h2>
+											<p>Не рассмотрели множество тем, например:</p>
 											<ul>
-												<li>Round-trip properties</li>
-												<li>Reference implementation</li>
+												<li class="fragment">Какие данные использовались для тестирования</li>
 											</ul>
-											
+											<pre class="fragment"><code class="nohighlight">[info] > Collected test data:
+[info] 20% Yahtzee vs FourOfAKind
+[info] 19% Yahtzee vs ThreeOfAKind
+[info] 16% Yahtzee vs FullHouse
+[info] 13% Yahtzee vs Straight
+[info] 10% FullHouse vs ThreeOfAKind
+[info] 9% Straight vs ThreeOfAKind
+[info] 6% FourOfAKind vs ThreeOfAKind
+[info] 6% Straight vs FourOfAKind
+[info] 1% Straight vs FullHouse</code></pre>
 										</section>
+						
+										<section>
+											<h2>Scalacheck</h2>
+											<p>Не рассмотрели множество тем, например:</p>
+											<ul>
+												<li>Какие данные использовались для тестирования</li>
+												<li class="fragment">Scalacheck API</li>
+											</ul>
+											<pre class="fragment"><code class="nohighlight">Gen[Double], posNum, Gen[String], alphaUpperChar, Gen[DateTime], ...
+Arbitrary,</code></pre>
+										</section>
+						
+										<section>
+											<h2>Scalacheck</h2>
+											<p>Не рассмотрели множество тем, например:</p>
+											<ul>
+												<li>Какие данные использовались для тестирования</li>
+												<li>Scalacheck API</li>
+												<li class="fragment">Автовыведение Gen для произвольных классов</li>
+											</ul>
+											<pre class="fragment"><code class="nohighlight">scala> case class Coordinates(x: Int, y: Int, description: String)
+defined class Coordinates
+
+scala> import org.scalacheck.Shapeless._
+import org.scalacheck.Shapeless._
+
+scala> arbitrary[Coordinates].sample
+res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))</code></pre>
+																</section>
+
+																<section>
+																	<h2>Scalacheck</h2>
+																	<p>Не рассмотрели множество тем, например:</p>
+																	<ul>
+																		<li>Какие данные использовались для тестирования</li>
+																		<li>Scalacheck API</li>
+																		<li>Автовыведение Gen для произвольных классов</li>
+																		<li class="fragment">scalacheck tests are free</li>
+																	</ul>
+																	<pre class="fragment"><code class="nohighlight">- Round-trip properties(Encoders/Decoders)
+- Reference implementation</code></pre>
+																						</section>
 
 										<section>
 											<h1>Спасибо за внимание</h1>
