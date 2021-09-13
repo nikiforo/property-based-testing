@@ -23,11 +23,11 @@
 				</section>
 
 				<section>
-					<h2>План доклада</h2>
+					<h2>О докладе</h2>
 					<ul>
+						<li class="fragment">noelmarkham @ 47deg</li>
 						<li class="fragment">Общие слова о тестировании</li>
 						<li class="fragment">Синтетические примеры</li>
-						<li class="fragment">Примеры из практики</li>
 						<p class="fragment">
 							Требуется понимать синтаксис языка программирования(scala)
 						</p>
@@ -61,7 +61,6 @@ prop: org.scalacheck.Prop = Prop
 </pre></code><pre class="fragment"><code class="nohighlight">scala> prop.check
 + OK, passed 100 tests.</pre></code>
                                   <br/>
-                                  <p class="fragment">Also works out-of-the-box with SBT</p>
 				</section>
 
 				<section>
@@ -369,8 +368,7 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 					<ul>
 						<li class="fragment">Какие данные использовались для тестирования</li>
 					</ul>
-					<p class="fragment">
-					<pre><code class="nohighlight">[info] > Collected test data:
+					<pre class="fragment"><code class="nohighlight">[info] > Collected test data:
 [info] 20% Yahtzee vs FourOfAKind
 [info] 19% Yahtzee vs ThreeOfAKind
 [info] 16% Yahtzee vs FullHouse
@@ -379,24 +377,114 @@ val genYahtzee: Gen[Hand] = oneOf(allDice)
 [info] 9% Straight vs ThreeOfAKind
 [info] 6% FourOfAKind vs ThreeOfAKind
 [info] 6% Straight vs FourOfAKind
-[info] 1% Straight vs FullHouse</code></pre></p>
+[info] 1% Straight vs FullHouse</code></pre>
 				</section>
 
 				<section>
 					<h2>Scalacheck</h2>
 					<p>Не рассмотрели множество тем, например:</p>
 					<ul>
-						<li class="fragment">Какие данные использовались для тестирования</li>
+						<li>Какие данные использовались для тестирования</li>
 						<li class="fragment">Scalacheck API</li>
 					</ul>
-					<p class="fragment">
-					<pre><code class="nohighlight">Gen[Double], posNum, Gen[String], alphaUpperChar, Gen[DateTime], ...
-Arbitrary, 
-					</code></pre></p>
+					<pre class="fragment"><code class="nohighlight">Gen[Double], posNum, Gen[String], alphaUpperChar, Gen[DateTime], ...
+Arbitrary,</code></pre>
 				</section>
 
-				<section>Slide 2</section>
-			</div>
+				<section>
+					<h2>Scalacheck</h2>
+					<p>Не рассмотрели множество тем, например:</p>
+					<ul>
+						<li>Какие данные использовались для тестирования</li>
+						<li>Scalacheck API</li>
+						<li class="fragment">Автовыведение Gen для произвольных классов</li>
+					</ul>
+					<pre class="fragment"><code class="nohighlight">scala> case class Coordinates(x: Int, y: Int, description: String)
+defined class Coordinates
+
+scala> import org.scalacheck.Shapeless._
+import org.scalacheck.Shapeless._
+
+scala> arbitrary[Coordinates].sample
+res0: Option[Coordinates] = Some(Coordinates(0,537278256,쪗ܘ暎))
+						</code></pre>
+										</section>
+
+										<section>
+											<h2>Особенности scalacheck</h2>
+										 
+											<h4>Предпочитай генераторы, оператору <code>==></code></h4>
+						
+						
+						<pre class="fragment"><code class="nohighlight">forAll { (i1: Int, i2: Int, i3: Int) =>
+  (i1 > 0 && i2 > 0 && i3 > 0) ==> {
+    passed
+  }
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] ! 3 positive integers: Gave up after only 51 passed tests.
+501 tests were discarded.</code></pre><pre class="fragment"><code class="nohighlight">forAll(posNum[Int], posNum[Int], posNum[Int]) { (i1, i2, i3) =>
+  passed
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] + 3 positive integers: OK, passed 100 tests.</code></pre>
+										</section>
+
+										<section>
+											<h2>Именование Generators</h2>	  
+						<pre class="fragment"><code class="nohighlight">forAll(arbitrary[Int], arbitrary[Map[Int, String]]) { (i, m) =>
+	m.get(i).isDefined
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 0 passed tests.
+[info] > ARG_0: 1
+[info] > ARG_1: Map()</code></pre><pre class="fragment"><code class="nohighlight">forAll("Index"           |: arbitrary[Int],
+       "Lookup database" |: arbitrary[Map[Int, String]]) { (i, m) =>
+  m.get(i).isDefined
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 0 passed tests.
+[info] > Index: -2147483648
+[info] > Lookup database: Map()</code></pre>
+										</section>
+						
+										<section>
+											<h2>Именование Properties</h2>
+										
+											<h4>Better than <code>println</code></h4>
+						<pre class="fragment"><code class="nohighlight">forAll { (i: Int, j: Int) =>
+  val (max, min) = (i max j, i min j)
+  val (maxSq, minSq) = (max * max, min * min)
+
+  minSq <= maxSq
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 2 passed tests.
+[info] > ARG_0: 1528767008
+[info] > ARG_1: 1356090093</code></pre>
+										</section>
+						
+										<section>
+											<h2>Именование Properties</h2>
+										 
+											<h4><code>println</code></h4>
+						<pre><code class="nohighlight">forAllNoShrink { (i: Int, j: Int) =>
+  val (max, min) = (i max j, i min j)
+  val (maxSq, minSq) = (max * max, min * min)
+
+  s"[min: $min, square: $minSq], [max: $max, square: $maxSq]" |:
+    (minSq <= maxSq)
+}</code></pre><pre class="fragment"><code class="nohighlight">[info] ! Falsified after 0 passed tests.
+[info] > Labels of failing property:
+[info] [min: -2147483648, square: 0],
+       [max: -2140727206, square: -1698889820]
+[info] > ARG_0: -2140727206
+[info] > ARG_1: -2147483648</code></pre>
+										</section>
+
+										<section>
+											<h2>Free</h2>
+											<ul>
+												<li>Round-trip properties</li>
+												<li>Reference implementation</li>
+											</ul>
+											
+										</section>
+
+										<section>
+											<h1>Спасибо за внимание</h1>
+										</section>
+									</div>
 		</div>
 
 		<script src="dist/reveal.js"></script>
